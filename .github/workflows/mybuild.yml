@@ -1,0 +1,38 @@
+# Это "робот" который собирает мод за тебя в облаке GitHub
+name: Build Mod
+
+# Запускать сборку при каждом изменении кода + по кнопке вручную
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      # 1. Забираем твой код
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # 2. Ставим Java 21
+      - name: Setup JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+
+      # 3. Даём права на запуск gradle
+      - name: Grant execute permission
+        run: chmod +x ./gradlew
+
+      # 4. Собираем мод
+      - name: Build with Gradle
+        run: ./gradlew build
+
+      # 5. Выкладываем готовый .jar чтобы можно было скачать
+      - name: Upload mod jar
+        uses: actions/upload-artifact@v4
+        with:
+          name: TouchExtras-mod
+          path: build/libs/*.jar
